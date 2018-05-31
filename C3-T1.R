@@ -1,4 +1,4 @@
-rm(list=ls()) #empty environment library(dplyr)
+rm(list=ls())
 
 getwd()
 setwd("C:/Users/user/Google Drive/WD")
@@ -9,16 +9,14 @@ library(lubridate)
 library(ggplot2)
 library(gridExtra)
 
-
-
-#import of the data: 4 data frames
+# import of the data: 4 data frames
 year2006 <- read.csv("years/year2006.csv")
 year2007 <- read.csv("years/year2007.csv")
 year2008 <- read.csv("years/year2008.csv")
 year2009 <- read.csv("years/year2009.csv")
 year2010 <- read.csv("years/year2010.csv")
 
-#Initial data exploration
+# initial data exploration
 class(year2006)
 names(year2006)
 attributes(year2006)
@@ -47,7 +45,7 @@ tail(year2008)
 tail(year2009)
 tail(year2010)
 
-#multi year data frame (MYdf)
+# multi year data frame (MYdf)
 MYdf <- bind_rows(year2007, year2008, year2009)
 class(MYdf)
 MYdf <- as_tibble(MYdf)
@@ -58,12 +56,12 @@ head(MYdf)
 tail(MYdf)
 names(MYdf)
 
-#check 
+# check 
 dim(MYdf)
 nrow(year2007)+ nrow(year2008) + nrow(year2009)
 View(MYdf)
 
-#Combining Date and Time attributes in a new column (11th column) in order to convert them to the correct format
+# combining Date and Time attributes in a new column (11th column) in order to convert them to the correct format
 MYdf <- cbind(MYdf, paste(MYdf$Date, MYdf$Time), stringsAsFactors = FALSE)
 head(MYdf)
 ## Give the new DateTime attribute a header name
@@ -74,13 +72,12 @@ MYdf <- MYdf[, c(ncol(MYdf), 1:(ncol(MYdf)-1))]
 head(MYdf)
 glimpse(MYdf)
 
-## Convert DateTime to POSIXct format 
+# convert DateTime to POSIXct format 
 MYdf$DateTime <- as.POSIXct(MYdf$DateTime, "%d/%m/%Y %H:%M:%S")
 glimpse(MYdf)
 head(MYdf)
 
-## Creating "year" attribute with lubridate
-#also possible: quarter, month, week, day, hour, minute
+# creating "year" attribute with lubridate (quarter, month, week, day, hour, minute also possible)
 MYdf$year <- year(MYdf$DateTime)
 head(MYdf)
 #MYdf$quarter <- quarter(MYdf$DateTime)
@@ -89,14 +86,14 @@ head(MYdf)
 #head(MYdf)
 
 summary(MYdf)
-#removing some columns(x, Date, Time)
+
+# removing some columns(x, Date, Time)
 MYdf <- MYdf[-c(2, 3, 4)]
 glimpse(MYdf)
 summary(MYdf)
-#Analysis 
 
-
-#Min and max values
+# analysis 
+# min and max values
 max(MYdf$Sub_metering_1, na.rm = T)
 max(MYdf$Sub_metering_2, na.rm = T)
 max(MYdf$Sub_metering_3, na.rm = T)
@@ -105,11 +102,11 @@ min(s$Sub_metering_1, na.rm = T)
 min(s$Sub_metering_2, na.rm = T)
 min(s$Sub_metering_3, na.rm = T)
 
-#new attribute names 
-#MYdf %>% rename(GAP = Global_active_power, GRP = Global_reactive_power, Vol = Voltage, GI = Global_intensity, SM_1 = Sub_metering_1, SM_2 = Sub_metering_2, SM_3 = Sub_metering_3) %>% select(GAP:SM_3) %>% head(3)
+# new attribute names 
+# MYdf %>% rename(GAP = Global_active_power, GRP = Global_reactive_power, Vol = Voltage, GI = Global_intensity, SM_1 = Sub_metering_1, SM_2 = Sub_metering_2, SM_3 = Sub_metering_3) %>% select(GAP:SM_3) %>% head(3)
 
-#Submeters - years 2007-2009 ALE I BEZ 0
-#year07 <- MYdf %>% filter(year == 2007) #& Sub_metering_3 > 0)
+# submeters - years 2007-2009, without 0
+# year07 <- MYdf %>% filter(year == 2007 & Sub_metering_3 > 0)
 
 SM_1_years <- MYdf %>% filter(Sub_metering_1 > 0) %>% ggplot(aes(Sub_metering_1)) +
   geom_bar(fill = "#BA3B21") + 
@@ -129,8 +126,8 @@ SM_3_years <- MYdf %>% filter(Sub_metering_3 > 0) %>% ggplot(aes(Sub_metering_3)
 grid.arrange(SM_1_years, SM_2_years, SM_3_years, nrow = 3)
 
 
-#Also: subset(MYdf, year == 2007)
-#par(mfrow = c(2, 2)) 2x2 matrix of e.g. histograms
+# also: subset(MYdf, year == 2007)
+# par(mfrow = c(2, 2))
 
 summary(year07)
 FacetWrapsd(year07$Sub_metering_1, na.rm = T)
@@ -220,10 +217,7 @@ S1 / (S1 + S2 + S3)
 S2 / (S1 + S2 + S3)
 S3 / (S1 + S2 + S3)
 
-
-
-#Removing 0 and boxplot - (boxplot and histogram)quick sense of distribution of a one variable 
-#distribution: positively and negatively skewed, uniform (platykurtic) or high peak (leptokurtic) 
+# boxplot (0s removed)
 par(mfrow = c(1,3))
 
 s <- filter(MYdf, Sub_metering_1 > 0)
@@ -234,61 +228,6 @@ boxplot(c$Sub_metering_2,  na.rm = T, horizontal = T, main = "SubM2")
 
 g <- filter(MYdf, Sub_metering_3 > 0)
 boxplot(g$Sub_metering_3,  na.rm = T, horizontal = T, main = "SubM3")
-
-
-
-
-
-
-# relation between 2 attributes, sampled number/fraction: sample_n; sample_frac
-sam1 <- sample_n(newdf, 50) #weight = ??? (parameter)
-sam2 <- (sample_frac(newdf, .0001)
-         plot(sam1$Global_reactive_power, sam1$Global_intensity) 
-
-#dealing with NAs
-any(is.na(MYdf))
-sum(is.na(MYdf))
-na <- which(is.na(MYdf)) #(df$...)
-MYdf[na,] # shows all rows with NA
-
-complete.cases(df) # returns one element for each row, TRUE - no missing data (complete case)
-comp_cases <- df[complete.cases(df), ] #subset data with complete cases
-dim(comp_cases)
-#or
-c_c <- na.omit(df)
-dim(c_c)
-#or?
-newdf$Global_reactive_power[newdf$Global_reactive_power == "?"] <- NA #zastapienie "?" NA, if it's NA - but maybe not 
-filter(newdf, DataTime =................, !is.na(Global_avtive_power) #maybe like this???
-
-#pipedf <- df %>% select(Date, Time) %>% mutate(DataTime = paste(Date, Time))
-#pipedf
-
-glimpse(newdf)
-table(newdf$Global_active_power)
-
-#rename the attributes
-#new_names <- newdf %>% rename(GAP = Global_active_power, GRP = Global_reactive_power, Vol = Voltage, GI = Global_intensity, SM_1 = Sub_metering_1, SM_2 = Sub_metering_2, SM_3 = Sub_metering_3) %>% select(GAP:SM_3) %>% head(3)
-#mutate GAP - GRP
-#mutated_new_names <- new_names %>% mutate(GAP_GRP_diff = GAP - GRP) %>% head(3)
-#mutated_new_names
-
-#summarize
-#summarize(newdf, avgGAP = mean(Sub_metering_3, na.rm = T), med = median(Sub_metering_3, na.rm = T),  sum = sum(Sub_metering_3, na.rm = T), var = var(Sub_metering_3, na.rm = T), min = min(Sub_metering_3, na.rm = T), max = max(Sub_metering_3, na.rm = T), NA. = sum(is.na(Sub_metering_3)))
-#summarize r functions: min(), mean(), sum(), var(), sd(), length(), max(), median(); 
-#dplyr functions: first(), last(), nth(), n(), n_distinct()
-
-class(newdf$DateTime)
-class(newdf$Global_active_power)
-#table(newdf$Global_active_power)
-
-
-
-#changes  
-#gr <- which(df$... == 10)
-# df[gr, ]
-# df$...[gr] <- 100 will change 10 for 100
-             
 
 save.image()
 
