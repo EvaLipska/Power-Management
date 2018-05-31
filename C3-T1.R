@@ -288,9 +288,7 @@ class(newdf$Global_active_power)
 #gr <- which(df$... == 10)
 # df[gr, ]
 # df$...[gr] <- 100 will change 10 for 100
-              
-#check the code: dataframe$variable
-#table(df$Submetering_3)
+             
 
 save.image()
 
